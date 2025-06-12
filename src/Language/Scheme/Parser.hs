@@ -2,6 +2,9 @@ module Language.Scheme.Parser
     ( SchemeExpr (..)
     , parseScheme
     , schemeParser
+    , expressions
+    , expression
+    , identifier
     ) where
 
 import           Control.Monad (void)
@@ -10,7 +13,7 @@ import           Text.Parsec
 
 data SchemeExpr = Evaluation [SchemeExpr]
                 | Reference Text
-                deriving Show
+                deriving (Show, Eq)
 
 parseScheme :: Text -> Either ParseError [SchemeExpr]
 parseScheme = parse schemeParser ""
