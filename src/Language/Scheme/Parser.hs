@@ -22,7 +22,7 @@ schemeParser :: Parsec Text () [SchemeExpr]
 schemeParser = expressions
 
 expressions :: Parsec Text () [SchemeExpr]
-expressions = many1 $ do
+expressions = many $ do
     expr <- try expression <|> identifier
     spaces
     return expr

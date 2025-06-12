@@ -33,11 +33,11 @@ parserSpec = do
         it "should parse an expression with three elements" $
             parseEof expression "(let x =)" `shouldParse` Evaluation [Reference "let", Reference "x", Reference "="]
 
+        it "should parse an expression with no elements" $
+            parseEof expression "()" `shouldParse` Evaluation []
+
         it "should parse expressions inside an expression" $
             parseEof expression "((let x (y)) abc)" `shouldParse` Evaluation [Evaluation [Reference "let", Reference "x", Evaluation [Reference "y"]], Reference "abc"]
-
-        it "should not parse an expression with no elements" $
-            parseEof expression `shouldFailOn` "()"
 
         it "should not parse malformed expressions" $
             parseEof expression `shouldFailOn` "("
