@@ -1,8 +1,10 @@
 module Language.Scheme.ParserSpec (parserSpec) where
 
-import           Test.Hspec
+import           Test.Hspec             (Spec, describe, it)
+import           Test.Hspec.Parsec      (shouldFailOn, shouldParse)
 
-import           Text.Parsec            (parse)
+import           Data.Text              (Text)
+import           Text.Parsec            (ParseError, Parsec, eof, parse)
 
 import           Language.Scheme.Parser
 
@@ -10,32 +12,35 @@ parserSpec :: Spec
 parserSpec = do
     describe "identifier parser" $ do
         it "should parse an identifier consisting of alphabets" $
-            let expect = Right (Reference "intercalate")
-                actual = "intercalate" in
-                    parse identifier "" actual `shouldBe` expect
+            parseEof identifier "intercalate" `shouldParse` Reference "intercalate"
 
         it "should parse an identifier consisting of alphabets and numbers" $
-            let expect = Right (Reference "liftM2")
-                actual = "liftM2" in
-                    parse identifier "" actual `shouldBe` expect
+            parseEof identifier "liftM2" `shouldParse` Reference "liftM2"
 
         it "should parse an identifier consisting of alphabets and symbols" $
-            let expect = Right (Reference "celsius->fahrenheit")
-                actual = "celsius->fahrenheit" in
-                    parse identifier "" actual `shouldBe` expect
+            parseEof identifier "celsius->fahrenheit" `shouldParse` Reference "celsius->fahrenheit"
 
         it "should not parse unrecognisable characters" $
-            let expect = Right (Reference "aaaa")
-                actual = "aaaa\\bbbb" in
-                    parse identifier "" actual `shouldBe` expect
+            parseEof identifier `shouldFailOn` "\\"
 
     describe "expression parser" $ do
         it "should parse an expression with an element" $
-            let expect = Right (Evaluation [Reference "define"])
-                actual = "(define)" in
-                    parse expression "" actual `shouldBe` expect
-        it "should parse an expression with two elements" $
-            let expect = Right (Evaluation [Reference "let", Reference "x"])
-                actual = "(let x)" in
-                    parse expression "" actual `shouldBe` expect
+            parseEof expression "(define)" `shouldParse` Evaluation [Reference "define"]
 
+        it "should parse an expression with two elements" $
+            parseEof expression "(let x)" `shouldParse` Evaluation [Reference "let", Reference "x"]
+
+        it "should parse an expression with three elements" $
+            parseEof expression "(let x =)" `shouldParse` Evaluation [Reference "let", Reference "x", Reference "="]
+
+        it "should parse expressions inside an expression" $
+            parseEof expression "((let x (y)) abc)" `shouldParse` Evaluation [Evaluation [Reference "let", Reference "x", Evaluation [Reference "y"]], Reference "abc"]
+
+        it "should not parse an expression with no elements" $
+            parseEof expression `shouldFailOn` "()"
+
+        it "should not parse malformed expressions" $
+            parseEof expression `shouldFailOn` "("
+
+parseEof :: Parsec Text () a -> Text -> Either ParseError a
+parseEof parser = parse (parser >>= \result -> eof >> return result) ""
