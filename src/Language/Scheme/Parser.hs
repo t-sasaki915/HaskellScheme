@@ -1,48 +1,49 @@
 module Language.Scheme.Parser
-    ( SchemeExpr (..)
+    ( SchemeToken (..)
     , parseScheme
     , schemeParser
-    , expressions
-    , expression
-    , identifier
+    , schemeNumber
+    , schemeIdentifier
+    , schemeList
     ) where
 
 import           Control.Monad (void)
 import           Data.Text     (Text, pack)
 import           Text.Parsec
 
-data SchemeExpr = Evaluation [SchemeExpr]
-                | Reference Text
-                deriving (Show, Eq)
+data SchemeToken = SchemeIdentifier Text
+                 | SchemeNumber Text
+                 | SchemeList [SchemeToken]
+                 deriving (Show, Eq)
 
-parseScheme :: Text -> Either ParseError [SchemeExpr]
+parseScheme :: Text -> Either ParseError [SchemeToken]
 parseScheme = parse schemeParser ""
 
-schemeParser :: Parsec Text () [SchemeExpr]
-schemeParser = expressions
-
-expressions :: Parsec Text () [SchemeExpr]
-expressions = many $ do
-    expr <- try expression <|> identifier
+schemeParser :: Parsec Text () [SchemeToken]
+schemeParser = many $ do
+    tk <- try schemeList <|> try schemeNumber <|> schemeIdentifier
     spaces
-    return expr
+    return tk
 
-expression :: Parsec Text () SchemeExpr
-expression = do
+schemeNumber :: Parsec Text () SchemeToken
+schemeNumber = SchemeNumber . pack <$> many1 digit
+
+schemeIdentifier :: Parsec Text () SchemeToken
+schemeIdentifier = SchemeIdentifier . pack <$> many1 (alphaNum <|> oneOf supportedIdentifierChars)
+    where
+        supportedIdentifierChars =
+            [ '!', '$', '%', '&', '*', '+', '-', '.', '/'
+            , ':', '<', '=', '>', '?', '@', '^', '_', '~'
+            ]
+
+schemeList :: Parsec Text () SchemeToken
+schemeList = do
     void $ char '('
     spaces
 
-    inside <- expressions
+    inside <- schemeParser
 
     spaces
     void $ char ')'
 
-    return (Evaluation inside)
-
-identifier :: Parsec Text () SchemeExpr
-identifier = Reference . pack <$> many1 (alphaNum <|> oneOf supportedIdentifierCharacters)
-    where
-        supportedIdentifierCharacters =
-            [ '!', '$', '%', '&', '*', '+', '-', '.', '/'
-            , ':', '<', '=', '>', '?', '@', '^', '_', '~'
-            ]
+    return (SchemeList inside)

@@ -12,35 +12,36 @@ parserSpec :: Spec
 parserSpec = do
     describe "identifier parser" $ do
         it "should parse an identifier consisting of alphabets" $
-            parseEof identifier "intercalate" `shouldParse` Reference "intercalate"
+            parseEof schemeIdentifier "intercalate" `shouldParse` SchemeIdentifier "intercalate"
 
         it "should parse an identifier consisting of alphabets and numbers" $
-            parseEof identifier "liftM2" `shouldParse` Reference "liftM2"
+            parseEof schemeIdentifier "liftM2" `shouldParse` SchemeIdentifier "liftM2"
 
         it "should parse an identifier consisting of alphabets and symbols" $
-            parseEof identifier "celsius->fahrenheit" `shouldParse` Reference "celsius->fahrenheit"
+            parseEof schemeIdentifier "celsius->fahrenheit" `shouldParse` SchemeIdentifier "celsius->fahrenheit"
 
         it "should not parse unrecognisable characters" $
-            parseEof identifier `shouldFailOn` "\\"
+            parseEof schemeIdentifier `shouldFailOn` "\\"
 
-    describe "expression parser" $ do
-        it "should parse an expression with an element" $
-            parseEof expression "(define)" `shouldParse` Evaluation [Reference "define"]
+    describe "list parser" $ do
+        it "should parse a list with an element" $
+            parseEof schemeList "(define)" `shouldParse` SchemeList [SchemeIdentifier "define"]
 
-        it "should parse an expression with two elements" $
-            parseEof expression "(let x)" `shouldParse` Evaluation [Reference "let", Reference "x"]
+        it "should parse a list with two elements" $
+            parseEof schemeList "(let x)" `shouldParse` SchemeList [SchemeIdentifier "let", SchemeIdentifier "x"]
 
-        it "should parse an expression with three elements" $
-            parseEof expression "(let x =)" `shouldParse` Evaluation [Reference "let", Reference "x", Reference "="]
+        it "should parse a list with three elements" $
+            parseEof schemeList "(let x =)" `shouldParse` SchemeList [SchemeIdentifier "let", SchemeIdentifier "x", SchemeIdentifier "="]
 
-        it "should parse an expression with no elements" $
-            parseEof expression "()" `shouldParse` Evaluation []
+        it "should parse a list with no elements" $
+            parseEof schemeList "()" `shouldParse` SchemeList []
 
-        it "should parse expressions inside an expression" $
-            parseEof expression "((let x (y)) abc)" `shouldParse` Evaluation [Evaluation [Reference "let", Reference "x", Evaluation [Reference "y"]], Reference "abc"]
+        it "should parse lists inside an expression" $
+            parseEof schemeList "((let x (y)) abc)" `shouldParse`
+                SchemeList [SchemeList [SchemeIdentifier "let", SchemeIdentifier "x", SchemeList [SchemeIdentifier "y"]], SchemeIdentifier "abc"]
 
-        it "should not parse malformed expressions" $
-            parseEof expression `shouldFailOn` "("
+        it "should not parse malformed lists" $
+            parseEof schemeList `shouldFailOn` "("
 
 parseEof :: Parsec Text () a -> Text -> Either ParseError a
 parseEof parser = parse (parser >>= \result -> eof >> return result) ""
