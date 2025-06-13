@@ -51,4 +51,4 @@ parserSpec = do
             parseEof schemeList `shouldFailOn` "("
 
 parseEof :: Parsec Text () a -> Text -> Either ParseError a
-parseEof parser = parse (parser >>= \result -> eof >> return result) ""
+parseEof parser = parse (parser <* eof) ""
