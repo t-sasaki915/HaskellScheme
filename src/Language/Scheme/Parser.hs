@@ -7,8 +7,7 @@ module Language.Scheme.Parser
     , schemeList
     ) where
 
-import           Control.Monad (void)
-import           Data.Text     (Text, pack)
+import           Data.Text   (Text, pack)
 import           Text.Parsec
 
 data SchemeToken = SchemeIdentifier Text
@@ -34,13 +33,4 @@ schemeIdentifier = SchemeIdentifier . pack <$> many1 (alphaNum <|> oneOf support
             ]
 
 schemeList :: Parsec Text () SchemeToken
-schemeList = do
-    void $ char '('
-    spaces
-
-    inside <- schemeParser
-
-    spaces
-    void $ char ')'
-
-    return (SchemeList inside)
+schemeList = (SchemeList <$>) $ char '(' *> spaces *> schemeParser <* spaces <* char ')'
