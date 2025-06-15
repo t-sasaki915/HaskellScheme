@@ -53,7 +53,7 @@ parserSpec = do
 
     describe "comment parser" $ do
         it "should parse scheme comments" $
-            parseEof schemeComment "; THIS IS A COMMENT" `shouldParse` ()
+            parseEof schemeComment "; THIS IS A COMMENT" `shouldParse` SchemeComment " THIS IS A COMMENT"
 
         it "should not parse malformed comments" $
             parseEof schemeComment `shouldFailOn` "THIS IS NOT A COMMENT"

@@ -15,6 +15,7 @@ import           Text.Parsec
 data SchemeToken = SchemeIdentifier Text
                  | SchemeNumber Text
                  | SchemeList [SchemeToken]
+                 | SchemeComment Text
                  deriving (Show, Eq)
 
 parseScheme :: Text -> Either ParseError [SchemeToken]
@@ -34,5 +35,5 @@ schemeIdentifier = SchemeIdentifier . pack <$> many1 (alphaNum <|> oneOf support
 schemeList :: Parsec Text () SchemeToken
 schemeList = (SchemeList <$>) $ char '(' *> spaces *> schemeParser <* spaces <* char ')'
 
-schemeComment :: Parsec Text () ()
-schemeComment = char ';' >> many anyChar >> (void newline <|> eof)
+schemeComment :: Parsec Text () SchemeToken
+schemeComment = (SchemeComment . pack <$>) $ char ';' *> many anyChar <* (void newline <|> eof)
