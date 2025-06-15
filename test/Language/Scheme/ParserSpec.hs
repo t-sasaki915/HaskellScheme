@@ -61,6 +61,13 @@ parserSpec = do
         it "should not parse malformed quotes" $
             parseEof schemeQuote `shouldFailOn` "abc"
 
+    describe "string parser" $ do
+        it "should parse string literals" $
+            parseEof schemeString "\"aaa\"" `shouldParse` SchemeString "aaa"
+
+        it "should not parse malformed string literals" $
+            parseEof schemeString `shouldFailOn` "\"aaa"
+
     describe "comment parser" $ do
         it "should parse scheme comments" $
             parseEof schemeComment "; THIS IS A COMMENT" `shouldParse` SchemeComment " THIS IS A COMMENT"
