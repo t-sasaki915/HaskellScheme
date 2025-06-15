@@ -150,8 +150,57 @@ parserSpec = do
                     ]
             parseEof schemeParser program `shouldParse` structure
 
+        it "should parse scheme programs with quotes" $ do
+            let program =
+                    [str|(define (map proc lis)
+                        |    (cond ((null? lis)
+                        |           '())
+                        |          ((pair? lis)
+                        |           (cons (proc (car lis))))))
+                        |]
+                structure =
+                    [ SchemeList
+                        [ SchemeIdentifier "define"
+                        , SchemeList
+                            [ SchemeIdentifier "map"
+                            , SchemeIdentifier "proc"
+                            , SchemeIdentifier "lis"
+                            ]
+                        , SchemeList
+                            [ SchemeIdentifier "cond"
+                            , SchemeList
+                                [ SchemeList
+                                    [ SchemeIdentifier "null?"
+                                    , SchemeIdentifier "lis"
+                                    ]
+                                , SchemeQuote (SchemeList [])
+                                ]
+                            , SchemeList
+                                [ SchemeList
+                                    [ SchemeIdentifier "pair?"
+                                    , SchemeIdentifier "lis"
+                                    ]
+                                , SchemeList
+                                    [ SchemeIdentifier "cons"
+                                    , SchemeList
+                                        [ SchemeIdentifier "proc"
+                                        , SchemeList
+                                            [ SchemeIdentifier "car"
+                                            , SchemeIdentifier "lis"
+                                            ]
+                                        ]
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ]
+            parseEof schemeParser program `shouldParse` structure
+
         it "should not parse scheme programs with unrecognisable characters" $
             parseEof schemeParser `shouldFailOn` "(define x = \\0)"
+
+        it "should not parse malformed scheme programs" $
+            parseEof schemeParser `shouldFailOn` "(define x = 0"
 
 parseEof :: Parsec Text () a -> Text -> Either ParseError a
 parseEof parser = parse (parser <* eof) ""

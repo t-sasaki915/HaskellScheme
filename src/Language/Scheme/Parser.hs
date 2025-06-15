@@ -21,7 +21,7 @@ data SchemeToken = SchemeIdentifier Text
                  deriving (Show, Eq)
 
 parseScheme :: Text -> Either ParseError [SchemeToken]
-parseScheme = parse schemeParser ""
+parseScheme = parse (schemeParser <* eof) ""
 
 schemeParser :: Parsec Text () [SchemeToken]
 schemeParser =
