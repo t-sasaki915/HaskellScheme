@@ -24,8 +24,8 @@ appMain :: AppOption -> IO ()
 appMain opts =
     case sourceFilePath opts of
         Just srcPath ->
-            TextIO.readFile srcPath >>= \schemeSource ->
-                TextIO.putStrLn $ Text.show $ parseScheme schemeSource
+            TextIO.readFile srcPath >>=
+                TextIO.putStrLn . Text.show . parseScheme
 
         Nothing ->
             error "Not implemented"
