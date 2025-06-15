@@ -13,6 +13,7 @@ module Language.Scheme.Parser
     ) where
 
 import           Control.Monad (void)
+import           Data.Functor  (($>))
 import           Data.Text     (Text, pack)
 import           Text.Parsec
 
@@ -80,14 +81,14 @@ schemeCharacter =
     where
         prefix = string "#\\"
 
-        backspaceChar    = prefix *> string "backspace" *> return (SchemeCharacter BackspaceCharacter)
-        tabChar          = prefix *> string "tab"       *> return (SchemeCharacter TabCharacter)
-        newlineChar      = prefix *> string "newline"   *> return (SchemeCharacter NewlineCharacter)
-        linefeedChar     = prefix *> string "linefeed"  *> return (SchemeCharacter LinefeedCharacter)
-        pageChar         = prefix *> string "page"      *> return (SchemeCharacter PageCharacter)
-        returnChar       = prefix *> string "return"    *> return (SchemeCharacter ReturnCharacter)
-        spaceChar        = prefix *> string "space"     *> return (SchemeCharacter SpaceCharacter)
-        ruboutChar       = prefix *> string "rubout"    *> return (SchemeCharacter RuboutCharacter)
-        literalSpaceChar = prefix *> char ' '           *> return (SchemeCharacter SpaceCharacter)
+        backspaceChar    = prefix *> string "backspace" $> SchemeCharacter BackspaceCharacter
+        tabChar          = prefix *> string "tab"       $> SchemeCharacter TabCharacter
+        newlineChar      = prefix *> string "newline"   $> SchemeCharacter NewlineCharacter
+        linefeedChar     = prefix *> string "linefeed"  $> SchemeCharacter LinefeedCharacter
+        pageChar         = prefix *> string "page"      $> SchemeCharacter PageCharacter
+        returnChar       = prefix *> string "return"    $> SchemeCharacter ReturnCharacter
+        spaceChar        = prefix *> string "space"     $> SchemeCharacter SpaceCharacter
+        ruboutChar       = prefix *> string "rubout"    $> SchemeCharacter RuboutCharacter
+        literalSpaceChar = prefix *> char ' '           $> SchemeCharacter SpaceCharacter
 
         simpleChar = (SchemeCharacter . SimpleCharacter <$>) $ prefix *> anyChar
