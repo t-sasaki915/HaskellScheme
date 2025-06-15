@@ -4,6 +4,7 @@ import           Test.Hspec             (Spec, describe, it)
 import           Test.Hspec.Parsec      (shouldFailOn, shouldParse)
 
 import           Data.Text              (Text)
+import           Text.Heredoc           (str)
 import           Text.Parsec            (ParseError, Parsec, eof, parse)
 
 import           Language.Scheme.Parser
@@ -49,6 +50,49 @@ parserSpec = do
 
         it "should not parse a malformed list" $
             parseEof schemeList `shouldFailOn` "("
+
+    describe "scheme parser" $ do
+        it "should parse simple real scheme programs" $ do
+            let program =
+                    [str|(define (factorial n)
+                        |    (if (= n 0)
+                        |        1
+                        |        (* n (factorial (- n 1)))))
+                        |]
+                structure =
+                    [ SchemeList
+                        [ SchemeIdentifier "define"
+                        , SchemeList
+                            [ SchemeIdentifier "factorial"
+                            , SchemeIdentifier "n"
+                            ]
+                        , SchemeList
+                            [ SchemeIdentifier "if"
+                            , SchemeList
+                                [ SchemeIdentifier "="
+                                , SchemeIdentifier "n"
+                                , SchemeNumber "0"
+                                ]
+                            , SchemeNumber "1"
+                            , SchemeList
+                                [ SchemeIdentifier "*"
+                                , SchemeIdentifier "n"
+                                , SchemeList
+                                    [ SchemeIdentifier "factorial"
+                                    , SchemeList
+                                        [ SchemeIdentifier "-"
+                                        , SchemeIdentifier "n"
+                                        , SchemeNumber "1"
+                                        ]
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ]
+            parseEof schemeParser program `shouldParse` structure
+
+        it "should not parse scheme programs with unrecognisable characters" $
+            parseEof schemeParser `shouldFailOn` "(define x = \\0)"
 
 parseEof :: Parsec Text () a -> Text -> Either ParseError a
 parseEof parser = parse (parser <* eof) ""
