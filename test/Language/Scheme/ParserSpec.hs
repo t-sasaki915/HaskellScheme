@@ -51,6 +51,13 @@ parserSpec = do
         it "should not parse a malformed list" $
             parseEof schemeList `shouldFailOn` "("
 
+    describe "comment parser" $ do
+        it "should parse scheme comments" $
+            parseEof schemeComment "; THIS IS A COMMENT" `shouldParse` ()
+
+        it "should not parse malformed comments" $
+            parseEof schemeComment `shouldFailOn` "THIS IS NOT A COMMENT"
+
     describe "scheme parser" $ do
         it "should parse simple real scheme programs" $ do
             let program =

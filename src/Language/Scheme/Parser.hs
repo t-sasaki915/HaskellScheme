@@ -5,9 +5,11 @@ module Language.Scheme.Parser
     , schemeNumber
     , schemeIdentifier
     , schemeList
+    , schemeComment
     ) where
 
-import           Data.Text   (Text, pack)
+import           Control.Monad (void)
+import           Data.Text     (Text, pack)
 import           Text.Parsec
 
 data SchemeToken = SchemeIdentifier Text
@@ -31,3 +33,6 @@ schemeIdentifier = SchemeIdentifier . pack <$> many1 (alphaNum <|> oneOf support
 
 schemeList :: Parsec Text () SchemeToken
 schemeList = (SchemeList <$>) $ char '(' *> spaces *> schemeParser <* spaces <* char ')'
+
+schemeComment :: Parsec Text () ()
+schemeComment = char ';' >> many anyChar >> (void newline <|> eof)
