@@ -27,10 +27,7 @@ schemeNumber = SchemeNumber . pack <$> many1 digit
 schemeIdentifier :: Parsec Text () SchemeToken
 schemeIdentifier = SchemeIdentifier . pack <$> many1 (alphaNum <|> oneOf supportedIdentifierChars)
     where
-        supportedIdentifierChars =
-            [ '!', '$', '%', '&', '*', '+', '-', '.', '/'
-            , ':', '<', '=', '>', '?', '@', '^', '_', '~'
-            ]
+        supportedIdentifierChars = "!$%&*+-./:<=>?@^_~"
 
 schemeList :: Parsec Text () SchemeToken
 schemeList = (SchemeList <$>) $ char '(' *> spaces *> schemeParser <* spaces <* char ')'
