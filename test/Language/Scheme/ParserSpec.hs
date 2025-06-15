@@ -51,6 +51,16 @@ parserSpec = do
         it "should not parse a malformed list" $
             parseEof schemeList `shouldFailOn` "("
 
+    describe "quote parser" $ do
+        it "should parse quoted tokens" $
+            parseEof schemeQuote "'abc" `shouldParse` SchemeQuote (SchemeIdentifier "abc")
+
+        it "should parse nested quotes" $
+            parseEof schemeQuote "'''()" `shouldParse` SchemeQuote (SchemeQuote (SchemeQuote (SchemeList [])))
+
+        it "should not parse malformed quotes" $
+            parseEof schemeQuote `shouldFailOn` "abc"
+
     describe "comment parser" $ do
         it "should parse scheme comments" $
             parseEof schemeComment "; THIS IS A COMMENT" `shouldParse` SchemeComment " THIS IS A COMMENT"

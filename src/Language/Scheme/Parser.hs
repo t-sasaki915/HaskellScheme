@@ -5,6 +5,7 @@ module Language.Scheme.Parser
     , schemeNumber
     , schemeIdentifier
     , schemeList
+    , schemeQuote
     , schemeComment
     ) where
 
@@ -15,6 +16,7 @@ import           Text.Parsec
 data SchemeToken = SchemeIdentifier Text
                  | SchemeNumber Text
                  | SchemeList [SchemeToken]
+                 | SchemeQuote SchemeToken
                  | SchemeComment Text
                  deriving (Show, Eq)
 
@@ -22,7 +24,8 @@ parseScheme :: Text -> Either ParseError [SchemeToken]
 parseScheme = parse schemeParser ""
 
 schemeParser :: Parsec Text () [SchemeToken]
-schemeParser = many $ (try schemeList <|> try schemeNumber <|> try schemeIdentifier <|> schemeComment) <* spaces
+schemeParser =
+    many $ (try schemeList <|> try schemeNumber <|> try schemeIdentifier <|> try schemeQuote <|> schemeComment) <* spaces
 
 schemeNumber :: Parsec Text () SchemeToken
 schemeNumber = SchemeNumber . pack <$> many1 digit
@@ -34,6 +37,10 @@ schemeIdentifier = SchemeIdentifier . pack <$> many1 (alphaNum <|> oneOf support
 
 schemeList :: Parsec Text () SchemeToken
 schemeList = (SchemeList <$>) $ char '(' *> spaces *> schemeParser <* spaces <* char ')'
+
+schemeQuote :: Parsec Text () SchemeToken
+schemeQuote =
+    (SchemeQuote <$>) $ char '\'' *> spaces *> (try schemeList <|> try schemeNumber <|> try schemeIdentifier <|> schemeQuote)
 
 schemeComment :: Parsec Text () SchemeToken
 schemeComment = (SchemeComment . pack <$>) $ char ';' *> manyTill anyChar (try $ eof <|> void newline)
