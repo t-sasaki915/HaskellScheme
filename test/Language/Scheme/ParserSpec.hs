@@ -75,6 +75,43 @@ parserSpec = do
         it "should not parse malformed comments" $
             parseEof schemeComment `shouldFailOn` "THIS IS NOT A COMMENT"
 
+    describe "character parser" $ do
+        it "should parse backspace character" $
+            parseEof schemeCharacter "#\\backspace" `shouldParse` SchemeCharacter BackspaceCharacter
+
+        it "should parse tab character" $
+            parseEof schemeCharacter "#\\tab" `shouldParse` SchemeCharacter TabCharacter
+
+        it "should parse newline character" $
+            parseEof schemeCharacter "#\\newline" `shouldParse` SchemeCharacter NewlineCharacter
+
+        it "should parse linefeed character" $
+            parseEof schemeCharacter "#\\linefeed" `shouldParse` SchemeCharacter LinefeedCharacter
+
+        it "should parse page character" $
+            parseEof schemeCharacter "#\\page" `shouldParse` SchemeCharacter PageCharacter
+
+        it "should parse return character" $
+            parseEof schemeCharacter "#\\return" `shouldParse` SchemeCharacter ReturnCharacter
+
+        it "should parse space character" $
+            parseEof schemeCharacter "#\\space" `shouldParse` SchemeCharacter SpaceCharacter
+
+        it "should parse rubout character" $
+            parseEof schemeCharacter "#\\rubout" `shouldParse` SchemeCharacter RuboutCharacter
+
+        it "should parse literal space character" $
+            parseEof schemeCharacter "#\\ " `shouldParse` SchemeCharacter SpaceCharacter
+
+        it "should parse simple character" $
+            parseEof schemeCharacter "#\\r" `shouldParse` SchemeCharacter (SimpleCharacter 'r')
+
+        it "should not parse unrecognisable special character" $
+            parseEof schemeCharacter `shouldFailOn` "#\\backspacee"
+
+        it "should not parse malformed character" $
+            parseEof schemeCharacter `shouldFailOn` "#\\"
+
     describe "scheme parser" $ do
         it "should parse simple real scheme programs" $ do
             let program =
