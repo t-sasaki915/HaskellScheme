@@ -22,7 +22,7 @@ parseScheme :: Text -> Either ParseError [SchemeToken]
 parseScheme = parse schemeParser ""
 
 schemeParser :: Parsec Text () [SchemeToken]
-schemeParser = many $ (try schemeList <|> try schemeNumber <|> schemeIdentifier) <* spaces
+schemeParser = many $ (try schemeList <|> try schemeNumber <|> try schemeIdentifier <|> schemeComment) <* spaces
 
 schemeNumber :: Parsec Text () SchemeToken
 schemeNumber = SchemeNumber . pack <$> many1 digit
@@ -36,4 +36,4 @@ schemeList :: Parsec Text () SchemeToken
 schemeList = (SchemeList <$>) $ char '(' *> spaces *> schemeParser <* spaces <* char ')'
 
 schemeComment :: Parsec Text () SchemeToken
-schemeComment = (SchemeComment . pack <$>) $ char ';' *> many anyChar <* (void newline <|> eof)
+schemeComment = (SchemeComment . pack <$>) $ char ';' *> manyTill anyChar (try $ eof <|> void newline)

@@ -98,6 +98,48 @@ parserSpec = do
                     ]
             parseEof schemeParser program `shouldParse` structure
 
+        it "should parse scheme programs with comments" $ do
+            let program =
+                    [str|(define (factorial n) ; define factorial :: Int -> Int
+                        |    (if (= n 0)
+                        |        1             ; if n = 0, return 0
+                        |        (* n (factorial (- n 1))))) ; recursive
+                        |]
+                structure =
+                    [ SchemeList
+                        [ SchemeIdentifier "define"
+                        , SchemeList
+                            [ SchemeIdentifier "factorial"
+                            , SchemeIdentifier "n"
+                            ]
+                        , SchemeComment " define factorial :: Int -> Int"
+                        , SchemeList
+                            [ SchemeIdentifier "if"
+                            , SchemeList
+                                [ SchemeIdentifier "="
+                                , SchemeIdentifier "n"
+                                , SchemeNumber "0"
+                                ]
+                            , SchemeNumber "1"
+                            , SchemeComment " if n = 0, return 0"
+                            , SchemeList
+                                [ SchemeIdentifier "*"
+                                , SchemeIdentifier "n"
+                                , SchemeList
+                                    [ SchemeIdentifier "factorial"
+                                    , SchemeList
+                                        [ SchemeIdentifier "-"
+                                        , SchemeIdentifier "n"
+                                        , SchemeNumber "1"
+                                        ]
+                                    ]
+                                ]
+                            ]
+                        ]
+                    , SchemeComment " recursive"
+                    ]
+            parseEof schemeParser program `shouldParse` structure
+
         it "should not parse scheme programs with unrecognisable characters" $
             parseEof schemeParser `shouldFailOn` "(define x = \\0)"
 
