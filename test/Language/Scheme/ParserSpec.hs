@@ -1,11 +1,14 @@
 module Language.Scheme.ParserSpec (parserSpec) where
 
-import           Test.Hspec             (Spec, describe, it)
-import           Test.Hspec.Parsec      (shouldFailOn, shouldParse)
+import           Test.Hspec                      (Spec, describe, it)
+import           Test.Hspec.Parsec               (shouldFailOn, shouldParse)
 
-import           Data.Text              (Text)
-import           Text.Heredoc           (str)
-import           Text.Parsec            (ParseError, Parsec, eof, parse)
+import           Data.Text                       (Text)
+import           Language.Scheme.Parser.Internal (SchemeCharacterType (..),
+                                                  SchemeToken (..))
+import           Text.Heredoc                    (str)
+import           Text.Parsec                     (ParseError, Parsec, eof,
+                                                  parse)
 
 import           Language.Scheme.Parser
 
