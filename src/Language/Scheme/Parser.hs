@@ -1,7 +1,5 @@
 module Language.Scheme.Parser
-    ( SchemeToken (..)
-    , SchemeCharacterType (..)
-    , parseScheme
+    ( parseScheme
     , schemeParser
     , schemeNumber
     , schemeIdentifier
@@ -12,30 +10,12 @@ module Language.Scheme.Parser
     , schemeCharacter
     ) where
 
-import           Control.Monad (void)
-import           Data.Functor  (($>))
-import           Data.Text     (Text, pack)
+import           Control.Monad                   (void)
+import           Data.Functor                    (($>))
+import           Data.Text                       (Text, pack)
+import           Language.Scheme.Parser.Internal (SchemeCharacterType (..),
+                                                  SchemeToken (..))
 import           Text.Parsec
-
-data SchemeToken = SchemeIdentifier Text
-                 | SchemeNumber Text
-                 | SchemeList [SchemeToken]
-                 | SchemeQuote SchemeToken
-                 | SchemeString Text
-                 | SchemeComment Text
-                 | SchemeCharacter SchemeCharacterType
-                 deriving (Show, Eq)
-
-data SchemeCharacterType = SimpleCharacter Char
-                         | BackspaceCharacter
-                         | TabCharacter
-                         | NewlineCharacter
-                         | LinefeedCharacter
-                         | PageCharacter
-                         | ReturnCharacter
-                         | SpaceCharacter
-                         | RuboutCharacter
-                         deriving (Show, Eq)
 
 parseScheme :: Text -> Either ParseError [SchemeToken]
 parseScheme = parse (schemeParser <* eof) ""

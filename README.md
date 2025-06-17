@@ -1,2 +1,2 @@
 # HaskellScheme
-Scheme parser and interpreter
+A stupid library that let you execute inline Scheme code in Haskell
