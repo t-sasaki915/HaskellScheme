@@ -1,6 +1,7 @@
 module Language.Scheme.Parser.Internal
     ( SchemeToken (..)
     , SchemeCharacterType (..)
+    , isComment
     ) where
 
 import           Data.Text (Text)
@@ -22,5 +23,8 @@ data SchemeCharacterType = SimpleCharacter Char
                          | PageCharacter
                          | ReturnCharacter
                          | SpaceCharacter
-                         | RuboutCharacter
                          deriving (Show, Eq)
+
+isComment :: SchemeToken -> Bool
+isComment (SchemeComment _) = True
+isComment _                 = False

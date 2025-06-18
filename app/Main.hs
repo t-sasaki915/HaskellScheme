@@ -1,8 +1,8 @@
 module Main (main) where
 
-import qualified Data.Text              as Text
-import qualified Data.Text.IO           as TextIO
-import           Language.Scheme.Parser (parseScheme)
+import qualified Data.Text            as Text
+import qualified Data.Text.IO         as TextIO
+import           Language.Scheme.Eval (evalScheme)
 import           Options.Applicative
 
 newtype AppOption = AppOption
@@ -25,7 +25,8 @@ appMain opts =
     case sourceFilePath opts of
         Just srcPath ->
             TextIO.readFile srcPath >>=
-                TextIO.putStrLn . Text.show . parseScheme
+                evalScheme >>=
+                    TextIO.putStrLn . Text.show
 
         Nothing ->
             error "Not implemented"

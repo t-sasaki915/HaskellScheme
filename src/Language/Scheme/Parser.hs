@@ -55,7 +55,6 @@ schemeCharacter =
     try pageChar <|>
     try returnChar <|>
     try spaceChar <|>
-    try ruboutChar <|>
     try literalSpaceChar <|>
     simpleChar
     where
@@ -68,7 +67,6 @@ schemeCharacter =
         pageChar         = prefix *> string "page"      $> SchemeCharacter PageCharacter
         returnChar       = prefix *> string "return"    $> SchemeCharacter ReturnCharacter
         spaceChar        = prefix *> string "space"     $> SchemeCharacter SpaceCharacter
-        ruboutChar       = prefix *> string "rubout"    $> SchemeCharacter RuboutCharacter
         literalSpaceChar = prefix *> char ' '           $> SchemeCharacter SpaceCharacter
 
         simpleChar = (SchemeCharacter . SimpleCharacter <$>) $ prefix *> anyChar

@@ -100,9 +100,6 @@ parserSpec = do
         it "should parse space character" $
             parseEof schemeCharacter "#\\space" `shouldParse` SchemeCharacter SpaceCharacter
 
-        it "should parse rubout character" $
-            parseEof schemeCharacter "#\\rubout" `shouldParse` SchemeCharacter RuboutCharacter
-
         it "should parse literal space character" $
             parseEof schemeCharacter "#\\ " `shouldParse` SchemeCharacter SpaceCharacter
 
