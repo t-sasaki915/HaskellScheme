@@ -13,10 +13,10 @@ evalScheme :: Text -> IO (Either Text SchemeValue)
 evalScheme src = runExceptT $ do
     values <- parseSrc src <&> evalTokens
 
-    return (SchemeString $ Text.show values)
+    pure (SchemeString $ Text.show values)
 
 parseSrc :: Monad m => Text -> ExceptT Text m [Token.SchemeToken]
 parseSrc src =
     case parseScheme src of
-        Right tokens -> return tokens
+        Right tokens -> pure tokens
         Left err     -> throwE (Text.show err)
